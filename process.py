@@ -1,21 +1,16 @@
 from pyedflib import highlevel
+import os
 
 
 
 def convert_signal(file) -> list:
     """
-    signals -> np.ndarray or list
-    the signals of the chosen channels contained in the EDF.
-
-    signal_headers -> list
-    one signal header for each channel in the EDF.
-
-    header -> dict
-    the main header of the EDF file containing meta information.
+    signals -> the signals of the chosen channels contained in the EDF.
+    signal_headers -> one signal header for each channel in the EDF.
+    header -> the main header of the EDF file containing meta information.
     """
     signals, signal_headers, header = highlevel.read_edf(file)
-
-
+    file_name = os.path.basename(file)
 
     # Find saturation and desaturation channels
     for index, item in enumerate(signal_headers):
@@ -65,7 +60,7 @@ def convert_signal(file) -> list:
     processed_value = res / (120 * (total_duration / 3600))
 
     # Return results as a string
-    result = [res, total_duration, processed_value, file]
+    result = [file_name, res, total_duration, processed_value]
     
     
 

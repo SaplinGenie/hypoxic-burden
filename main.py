@@ -1,31 +1,15 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from pyedflib import highlevel
-import pandas as pd
 import ttkbootstrap as ttkb
-
 from process import convert_signal
 
 
-
-
-
 # Define the main application
-window = ttkb.Window(themename = 'litera')
-window.geometry("1000x1000")
-My_Label = ttkb.Label(text = "This is an application agent which can help user to calculate xxxxx.")
-My_Label.pack()
+window = ttkb.Window(themename='litera')
+window.geometry("800x600")
 window.title("EDF File Viewer and Processor")
 
 uploaded_files = []  # A global list to keep track of uploaded file names
-
-result_labels = {
-    "file_name": ttkb.Label(window, text="File Name: ", font=("Helvetica", 12)),
-    "raw_data": ttkb.Label(window, text="Raw Data (Area): ", font=("Helvetica", 12)),
-    "total_duration": ttkb.Label(window, text="Total Duration (s): ", font=("Helvetica", 12)),
-    "processed_value": ttkb.Label(window, text="Processed Value: ", font=("Helvetica", 12))
-}
-
 
 
 def upload_files():
@@ -37,21 +21,16 @@ def upload_files():
     if not file_names:
         return
     try:
-        # Filter out duplicates
         new_files = [file for file in file_names if file not in uploaded_files]
         if not new_files:
-            messagebox.showinfo("Info", "No new files to upload. All selected files are already uploaded.")
+            messagebox.showinfo("Info", "已有重複文件上傳！")
             return
         
-        # Add only new files to the list
         uploaded_files.extend(new_files)
-
-         # Update the Listbox with the new files
         update_file_list()
-        messagebox.showinfo("Info", "Files uploaded successfully! Confirm and calculate when ready.")
+        messagebox.showinfo("Info", "文件上傳成功！")
     except Exception as e:
-        messagebox.showerror("Error", f"Failed to upload files: {e}")
-
+        messagebox.showerror("Error", f"文件上傳失敗，原因： {e}")
 
 
 def update_file_list():
@@ -63,7 +42,6 @@ def update_file_list():
         file_listbox.insert("end", file_name)  # Add each file name to the Listbox
 
 
-
 def remove_selected_file():
     """
     Remove the selected file from the list.
@@ -71,7 +49,7 @@ def remove_selected_file():
     global uploaded_files
     selected_index = file_listbox.curselection()  # Get the index of the selected file
     if not selected_index:
-        messagebox.showwarning("Warning", "No file selected for removal!")
+        messagebox.showwarning("Warning", "請選取要刪除的文件！")
         return
     
     # Remove the selected file from the list and refresh the Listbox
@@ -80,69 +58,81 @@ def remove_selected_file():
     update_file_list()
 
 
-
 def calculate_all_files():
     """
     Process all confirmed uploaded files and display the results.
     """
     global uploaded_files
     if not uploaded_files:
-        messagebox.showwarning("Warning", "No files uploaded to calculate!")
+        messagebox.showwarning("Warning", "請上傳文件！")
         return
     try:
-        results = []
+        # Clear previous results
+        for widget in results_scrollable_frame.winfo_children():
+            widget.destroy()
+
         for file in uploaded_files:
             result = convert_signal(file)
-    
-            results.append(f"File: {file}\n"
-                           f"依面積大小: {result[0]}\n"
-                           f"Total Duration (s): {result[1]}\n"
-                           f"Processed Value: {result[2]}\n")
-        
-        print(results)
-        # Display results for all processed files
-        results_text.delete("1.0", tk.END)
-        results_text.insert("1.0", "\n".join(results))
+
+            file_label = ttkb.Label(results_scrollable_frame, text=f"檔案名稱: {result[3]}", style='Secondary.TLabel')
+            file_label.pack(anchor="w", pady=2)
+
+            area_label = ttkb.Label(results_scrollable_frame, text=f"面積大小: {result[0]}")
+            area_label.pack(anchor="w", pady=2)
+
+            duration_label = ttkb.Label(results_scrollable_frame, text=f"持續秒數(s): {result[1]}")
+            duration_label.pack(anchor="w", pady=2)
+
+            value_label = ttkb.Label(results_scrollable_frame, text=f"數值結果: {result[2]}")
+            value_label.pack(anchor="w", pady=2)
+
+            separator = ttkb.Separator(results_scrollable_frame, orient="horizontal")
+            separator.pack(fill="x", pady=5)
     except Exception as e:
         messagebox.showerror("Error", f"Failed to calculate results: {e}")
 
 
+# Widgets
+file_listbox = tk.Listbox(window, height=8, width=80, selectmode="single")
 
+upload_button = ttkb.Button(text="選擇上傳文件", command=upload_files, style='Outline.TButton')
+remove_button = ttkb.Button(text="刪除文件", command=remove_selected_file, style='Outline.TButton')
+confirm_button = ttkb.Button(window, text="開始計算", command=calculate_all_files, style='Primary.TButton')
 
+topic_label = ttkb.Label(text="This is an application agent which can help user to calculate Hypoxic burden.", style='Secondary.TLabel')
+file_list_label = ttkb.Label(window, text="請選擇上傳文件 (限EDF格式)")
 
-# widgets
-# File list section
-file_list_label = ttkb.Label(window, text="Uploaded Files:")
-file_list_label.pack(pady=5)
+results_label = ttkb.Label(window, text="計算結果")
 
-file_listbox = tk.Listbox(window, height=10, width=80, selectmode="single")
-file_listbox.pack(padx=10, pady=5)
+# Scrollable frame for results
+results_canvas = tk.Canvas(window)
+results_scrollbar = ttkb.Scrollbar(window, orient="vertical", command=results_canvas.yview)
+results_scrollable_frame = ttkb.Frame(results_canvas)
 
-# Buttons
-upload_button = ttkb.Button(window, text="Upload EDF Files", command=upload_files, style='Outline.TButton')
-upload_button.pack(pady=5)
+results_scrollable_frame.bind(
+    "<Configure>",
+    lambda e: results_canvas.configure(scrollregion=results_canvas.bbox("all"))
+)
 
-remove_button = ttkb.Button(window, text="Remove Selected File", command=remove_selected_file, style='Outline.TButton')
-remove_button.pack(pady=5)
+results_canvas.create_window((0, 0), window=results_scrollable_frame, anchor="nw")
+results_canvas.configure(yscrollcommand=results_scrollbar.set)
 
-confirm_button = ttkb.Button(window, text="Confirm and Calculate", command=calculate_all_files, style='Primary.TButton')
-confirm_button.pack(pady=5)
+# Grid layout
+topic_label.grid(row=0, column=0, columnspan=2, pady=10, sticky="ew")
+file_list_label.grid(row=1, column=0, columnspan=2, pady=5, sticky="w")
+file_listbox.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
 
-# Results display
-results_label = tk.Label(window, text="Processing Results:")
-results_label.pack(pady=5)
+upload_button.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+remove_button.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
+confirm_button.grid(row=4, column=0, columnspan=2, pady=5, sticky="ew")
 
-results_text = tk.Text(window, wrap="word", height=10, width=80)
-results_text.pack(padx=10, pady=5, fill="both", expand=True)
+results_label.grid(row=5, column=0, columnspan=2, pady=5, sticky="w")
+results_canvas.grid(row=6, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
+results_scrollbar.grid(row=6, column=2, sticky="ns")
 
-# for label in result_labels.values():
-#     label.pack(pady=5)
+# Configure row/column weights for resizing
+window.grid_rowconfigure(6, weight=1)  # Allow results to expand vertically
+window.grid_columnconfigure(0, weight=1)
+window.grid_columnconfigure(1, weight=1)
 
-# Run the GUI event loop
 window.mainloop()
-
-
-    # f"Raw Data (原始數據計算後的面積): {res}\n" \
-    #          f"Total Duration(s) (需要計算的秒數): {total_duration}\n" \
-    #          f"Processed Value (最終計算結果): {processed_value}\n" \
-    #          f"Filename (上傳的檔案名稱): {file}"
