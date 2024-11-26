@@ -24,8 +24,6 @@ def convert_signal(file) -> list:
         if item['label'] == 'Desaturation':
             value_desaturation = signals[index]
 
-    print(value_saturation)
-    print(value_desaturation)
 
     # Process desaturation values
     new_value_desaturation = []
