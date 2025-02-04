@@ -4,3 +4,4 @@ numpy
 pyEDFlib
 tempfile
 streamlit
+pip
