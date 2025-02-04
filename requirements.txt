@@ -1,0 +1,6 @@
+pandas
+db-sqlite3
+numpy
+pyEDFlib
+streamlit
+tempfile

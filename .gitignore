@@ -4,3 +4,5 @@
 .venv
 raw_data
 __pycache__
+.DS_Store
+__pycache__/process.cpython-312.pyc
