@@ -1,0 +1,4 @@
+pandas
+db-sqlite3
+numpy
+pyEDFlib
