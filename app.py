@@ -17,15 +17,18 @@ calculate = Calculate()
 st.title("HB-sys")
 
 # Sidebar
+st.sidebar.image("./img/亞東醫院logo.png", use_container_width=True) 
 st.sidebar.header("操作說明")
-st.sidebar.write("This is a sidebar example.")
-st.sidebar.image("example.png", use_container_width=True, caption="Example Image") 
+
 st.sidebar.markdown("""
     ## 📌 EDF 檔案管理系統  
-    - 上傳 **EDF (European Data Format) 檔案**
-    - 儲存 **EDF 檔案** 於 SQLite
-    - 下載 **已上傳的 EDF 檔案**
+    - 選擇您要計算的 **EDF (European Data Format) 檔案**
+    - 確認上傳文件後，按下 **計算**
+    - 一次上傳 同位病患、同一天的資料可以選擇 **多檔** 合併計算
 """)
+if st.sidebar.button(label="設定", icon="🔥", type="secondary"):
+    st.sidebar.write("設定")
+
 
 # Step 1-1: Browse Files
 st.subheader("📂 Step 1: 請選擇文件")
@@ -75,37 +78,6 @@ if st.button("計算"):
                 st.error(f"❌ 解析 {uploaded_file.name} 時發生錯誤: {str(e)}")
 
 
-
-
-
-
-
-
-#     if db_files.empty:
-#         st.warning("資料庫中沒有檔案，請先上傳！")
-#     else:
-#         results = []
-#         for index, row in db_files.iterrows():
-#             file_id, filename = row["id"], row["filename"]
-            
-#             # Retrieve binary file from database
-#             cursor = action.conn.cursor()
-#             cursor.execute("SELECT filedata FROM temp_files WHERE id=?", (file_id,))
-#             file_data = cursor.fetchone()[0]
-
-#             # Write file to temporary directory
-#             with tempfile.NamedTemporaryFile(delete=False, suffix=".edf") as temp_file:
-#                 temp_file.write(file_data)
-#                 temp_file_path = temp_file.name
-
-#             # # Process the EDF file
-#             # try:
-#             #     result = calculate.convert_signal(temp_file_path)
-#             #     results.append(result)
-#             # except Exception as e:
-#             #     st.error(f"處理檔案 {filename} 時發生錯誤: {e}")
-
-#         # Display results
-#         if results:
-#             df_results = pd.DataFrame(results, columns=["File Name", "Res", "Total Duration", "Processed Value"])
-#             st.write(df_results)
+agree = st.checkbox("我同意條款")
+if agree:
+    st.write("謝謝您的同意！")
