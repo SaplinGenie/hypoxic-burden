@@ -49,6 +49,17 @@ if st.button("查看資料庫"):
 st.subheader("🔮 Step 2: 開始計算 EDF")
 
 # Step 2-1: Process EDF Files
+if uploaded_files:
+    # 創建選擇計算方式的選單
+    st.write("🔽 **請選擇每個檔案是否參與多檔計算**")
+
+    # 生成選擇框
+    file_selection = {}
+    for uploaded_file in uploaded_files:
+        file_selection[uploaded_file.name] = st.selectbox(
+            f"是否計算 {uploaded_file.name}？",
+            ["否", "是"]
+        )
 if st.button("計算"):
     existed_files = set(action.get_existed_files())  # 從資料庫取得已存在的檔案名稱
 
