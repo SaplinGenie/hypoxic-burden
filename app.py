@@ -17,8 +17,6 @@ action = Action()
 calculate = Calculate()
 calculate_v2 = Calculate_v2()
 
-with open('./assets/style.css') as f:
-   st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 st.set_page_config(page_title="hypoxic-burden calculation", page_icon=":bar_chart:", layout="wide")
 
@@ -87,16 +85,13 @@ if st.button("計算"):
                 st.write(result)
                 st.success(f"✅ 計算完成！")
                 st.write("第二種算法")
-                matched_signals = calculate_v2.get_signal("./data/8624--_C_2024-04-12.EDF", ["Saturation","Desaturation"])
+                matched_signals = calculate_v2.get_signal(file_path, ["Saturation","Desaturation"])
                 time = calculate_v2.get_time(matched_signals, "Desaturation")
                 area = calculate_v2.get_area(matched_signals)
                 result = calculate_v2.cal_result(time, area)
                 st.write("時間：", time)
                 st.write("區域：", area)
                 st.write("結果：", result)
-
-
-
 
 
 

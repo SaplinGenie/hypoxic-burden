@@ -1,6 +1,7 @@
 from pyedflib import highlevel
 from typing import Dict, Any, List, Optional
 import os
+import numpy as np
 
 
 
@@ -95,9 +96,5 @@ class Calculate_v2:
     
 
 
-matched_signals = a.get_signal("./data/8624--_C_2024-04-12.EDF", ["Saturation","Desaturation"])
-time = a.get_time(matched_signals, "Desaturation")
-area = a.get_area(matched_signals)
-result = a.cal_result(time, area)
 
 
