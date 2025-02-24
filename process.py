@@ -56,7 +56,12 @@ class Calculate:
 
         # Calculate final results
         total_duration = len(new_value_desaturation)
-        processed_value = res / (120 * (total_duration / 3600))
+
+        # processed_value = res / (120 * (total_duration / 3600))
+
+        processed_value = (res / 20) / (total_duration / 600)
+
+        (res/total_duration) * 30
 
         # Return results as a string
         result = [res, total_duration, processed_value]
@@ -64,3 +69,12 @@ class Calculate:
         
 
         return result
+
+
+def main():
+    print()
+
+
+
+if __name__ == "__main__":
+    main()

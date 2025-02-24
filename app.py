@@ -1,20 +1,29 @@
 from pyedflib import highlevel
 import pyedflib
 import streamlit as st
-from config import Action 
 import os
 import io
 import tempfile
 import numpy as np
 import pandas as pd
-from process import Calculate
+
+from config import Action           # db query
+from process import Calculate       # file calculation
+from calculate_v2 import Calculate_v2
+
 
 # Initialize database connection
 action = Action()
 calculate = Calculate()
+calculate_v2 = Calculate_v2()
+
+with open('./assets/style.css') as f:
+   st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+st.set_page_config(page_title="hypoxic-burden calculation", page_icon=":bar_chart:", layout="wide")
 
 # Streamlit UI
-st.title("HB-sys")
+st.title("Hypoxic Burden: Calculation and Analysis")
 
 # Sidebar
 st.sidebar.image("./img/亞東醫院logo.png", use_container_width=True) 
@@ -57,7 +66,7 @@ if uploaded_files:
     file_selection = {}
     for uploaded_file in uploaded_files:
         file_selection[uploaded_file.name] = st.selectbox(
-            f"是否計算 {uploaded_file.name}？",
+            f"是否合併計算 {uploaded_file.name}？",
             ["否", "是"]
         )
 if st.button("計算"):
@@ -77,6 +86,18 @@ if st.button("計算"):
                 result = calculate.convert_signal(file_path)
                 st.write(result)
                 st.success(f"✅ 計算完成！")
+                st.write("第二種算法")
+                matched_signals = calculate_v2.get_signal("./data/8624--_C_2024-04-12.EDF", ["Saturation","Desaturation"])
+                time = calculate_v2.get_time(matched_signals, "Desaturation")
+                area = calculate_v2.get_area(matched_signals)
+                result = calculate_v2.cal_result(time, area)
+                st.write("時間：", time)
+                st.write("區域：", area)
+                st.write("結果：", result)
+
+
+
+
 
 
                 # 比對準備上傳和資料庫的檔案是否已存在
@@ -92,3 +113,7 @@ if st.button("計算"):
 agree = st.checkbox("我同意條款")
 if agree:
     st.write("謝謝您的同意！")
+
+
+
+
