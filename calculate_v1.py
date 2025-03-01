@@ -2,6 +2,11 @@ from pyedflib import highlevel
 import os
 
 
+
+
+
+
+
 class Calculate:
     def convert_signal(self, file):
         """

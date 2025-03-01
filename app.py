@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from config import Action           # db query
-from process import Calculate       # file calculation
+from calculate_v1 import Calculate       # file calculation
 from calculate_v2 import Calculate_v2
 
 
@@ -53,7 +53,7 @@ if st.button("查看資料庫"):
 
 
 # Step 2: Process EDF Files
-st.subheader("🔮 Step 2: 開始計算 EDF")
+st.subheader("📂 Step 2: 開始計算 EDF")
 
 # Step 2-1: Process EDF Files
 if uploaded_files:
@@ -62,11 +62,7 @@ if uploaded_files:
 
     # 生成選擇框
     file_selection = {}
-    for uploaded_file in uploaded_files:
-        file_selection[uploaded_file.name] = st.selectbox(
-            f"是否合併計算 {uploaded_file.name}？",
-            ["否", "是"]
-        )
+
 if st.button("計算"):
     existed_files = set(action.get_existed_files())  # 從資料庫取得已存在的檔案名稱
 
@@ -79,20 +75,18 @@ if st.button("計算"):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1]) as tmpfile:
                     tmpfile.write(uploaded_file.read())
                     file_path = tmpfile.name  # 取得檔案路徑
-
-                # 顯示檔案儲存位置
-                result = calculate.convert_signal(file_path)
-                st.write(result)
-                st.success(f"✅ 計算完成！")
+                    
+                
                 st.write("第二種算法")
                 matched_signals = calculate_v2.get_signal(file_path, ["Saturation","Desaturation"])
-                time = calculate_v2.get_time(matched_signals, "Desaturation")
-                area = calculate_v2.get_area(matched_signals)
+                area, time127 = calculate_v2.get_area(matched_signals)
+                time = calculate_v2.get_time(matched_signals, "Saturation", time127)
                 result = calculate_v2.cal_result(time, area)
                 st.write("時間：", time)
                 st.write("區域：", area)
                 st.write("結果：", result)
 
+                st.success(f"✅ 計算完成！")
 
 
                 # 比對準備上傳和資料庫的檔案是否已存在
@@ -111,4 +105,26 @@ if agree:
 
 
 
+st.markdown(
+    """
+    <style>
+    .element-container:has(style){
+        display: none;
+    }
+    #button-after {
+        display: none;
+    }
+    .element-container:has(#button-after) {
+        display: none;
+    }
+    .element-container:has(#button-after) + div button {
+        background-color: orange;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown('<span id="button-after"></span>', unsafe_allow_html=True)
+st.button("My Button")
 

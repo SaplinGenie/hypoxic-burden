@@ -4,7 +4,6 @@ import os
 import numpy as np
 
 
-
 class Calculate_v2:
     def get_signal(self, file, labels: List[str]) -> Optional[Dict[str, Any]]:
         """
@@ -31,7 +30,8 @@ class Calculate_v2:
         return matched_signals if matched_signals else None
                 
 
-    def get_time(self,matched_signals, label):
+
+    def get_time(self, matched_signals, label, time127):
         matched_signal = matched_signals.get(label)
 
         if matched_signal is None:
@@ -43,8 +43,11 @@ class Calculate_v2:
         if signal is None:
             print(f"No signal data found for label '{label}'.")
             return None
-
-        return np.count_nonzero(signal == 1)
+        
+        if label == "Saturation":
+            time = len(signal) - (time127/10)
+            return time
+    
 
 
     def get_area(self,matched_signals):
@@ -54,6 +57,7 @@ class Calculate_v2:
 
         # step 1: Expand Saturation Signal (Repeat each value 10 times)
         expanded_saturation_signal = np.repeat(saturation_signal, 10)
+        
  
         # Step 2: Align Desaturation Signal with Expanded Saturation
         min_length = min(len(expanded_saturation_signal), len(desaturation_signal))
@@ -63,9 +67,17 @@ class Calculate_v2:
         aligned_saturation_signal = []
         regions = []
         current_region = []
+        saturation_127 = 0
+
 
 
         for index in range(min_length):
+            # Exclude values where expanded_saturation_signal is 127
+            if expanded_saturation_signal[index] == 127:
+                saturation_127 +=1
+                continue  # Skip this index
+
+
             if desaturation_signal[index] == 1:
                 aligned_time.append(index)
                 aligned_saturation_signal.append(expanded_saturation_signal[index])
@@ -86,15 +98,11 @@ class Calculate_v2:
             region_area = sum(max_value - value for value in region)  # Compute area
             sum_area += region_area
 
-        return sum_area
+        return sum_area, saturation_127
     
+
 
     def cal_result(self, time, area):
-        processed_value = (area / 20) / (time / 600)
+        processed_value = (area / 600) / (time / 3600)
 
         return processed_value
-    
-
-
-
-
