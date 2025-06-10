@@ -27,7 +27,7 @@ st.sidebar.markdown("""
     - 確認上傳文件後，按下 **計算**
     - 一次上傳 同位病患、同一天的資料可以選擇 **多檔** 合併計算
 """)
-if st.sidebar.button(label="設定", icon="🔥", type="secondary"):
+if st.sidebar.button(label="設定", icon="🔥"):
     st.sidebar.write("設定")
 
 # Step 1-1: 選擇檔案
