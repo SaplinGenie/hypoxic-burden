@@ -19,7 +19,7 @@ st.set_page_config(page_title="hypoxic-burden calculation", page_icon=":bar_char
 st.title("Hypoxic Burden: Calculation and Analysis")
 
 # Sidebar 操作說明
-st.sidebar.image("./img/femh_logo.png", use_container_width=True)
+st.sidebar.image("../img/femh_logo.png", use_container_width=True)
 st.sidebar.header("操作說明")
 st.sidebar.markdown("""
     ## 📌 EDF 檔案管理系統  
